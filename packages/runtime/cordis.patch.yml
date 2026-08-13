@@ -1,0 +1,3 @@
+- insert:
+    - id: dsh-devkit-tool-cordis
+      name: '@deepseek-ai/dsh-tool-cordis'

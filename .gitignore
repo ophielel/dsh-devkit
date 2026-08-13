@@ -1,0 +1,8 @@
+.smoke-home/
+node_modules/
+*.tgz
+.env
+.env.*
+!.env.example
+*.pem
+*.key

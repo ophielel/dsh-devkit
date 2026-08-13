@@ -1,0 +1,16 @@
+{
+  "name": "dsh-devkit",
+  "version": "0.1.0",
+  "description": "Modular software-engineering capability installer for DeepSeek Harness",
+  "type": "module",
+  "bin": {
+    "dsh-devkit": "lib/cli.js"
+  },
+  "files": [
+    "lib"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "license": "MIT"
+}

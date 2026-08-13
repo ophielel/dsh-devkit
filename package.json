@@ -1,0 +1,14 @@
+{
+  "name": "dsh-devkit-workspace",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.7.0",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "scripts": {
+    "test": "node --test packages/*/test/*.test.js",
+    "lint": "node --check packages/installer/lib/cli.js && node --check packages/installer/lib/app.js && node --check packages/installer/lib/execution.js && node --check packages/installer/lib/options.js && node --check packages/installer/lib/selection.js && node --check packages/installer/lib/tui.js && node --check packages/core/index.js && node --check packages/core/safety.js && node --check packages/core/skills.js",
+    "dev": "node packages/installer/lib/cli.js"
+  }
+}

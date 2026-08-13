@@ -1,0 +1,23 @@
+{
+  "name": "dsh-devkit-browser",
+  "version": "0.1.0",
+  "description": "Text-first Playwright MCP Browser Bundle for DeepSeek Harness",
+  "type": "module",
+  "files": [
+    "cordis.patch.yml"
+  ],
+  "exports": {
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "license": "MIT"
+}
+

@@ -1,0 +1,17 @@
+- insert:
+    - id: dsh-devkit-browser
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: browser
+        transport: stdio
+        command: npx
+        args: ['-y', '@playwright/mcp@0.0.79', '--headless', '--isolated', '--browser', 'chromium', '--caps', 'devtools', '--image-responses', 'omit']
+        cwd: !!js process.cwd()
+        toolCallTimeoutMs: 90000
+        failOnStartupError: false
+        reconnect:
+          enabled: true
+          initialDelayMs: 1000
+          maxDelayMs: 30000
+          maxAttempts: 5
+
