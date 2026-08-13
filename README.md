@@ -13,36 +13,41 @@
 
 架构取舍和风险记录见 [DECISIONS.md](DECISIONS.md)，后续路线见 [TODO.md](TODO.md)。
 
-## 直接运行当前源码
+## 快速开始
 
-本项目本身没有第三方运行时依赖。先检查环境：
+确保 `dsh` 已在 `PATH` 中，然后检查环境：
 
-```powershell
-cd C:\Users\24790\Desktop\10\dsh-devkit
-node packages\installer\lib\cli.js doctor --harness C:\Users\24790\Desktop\deepseek-harness
+```sh
+npx dsh-devkit doctor
 ```
 
 打开小型 TUI，使用方向键移动、空格选择、Enter 安装：
 
-```powershell
-node packages\installer\lib\cli.js install --profile web --harness C:\Users\24790\Desktop\deepseek-harness
+```sh
+npx dsh-devkit install --profile web
 ```
 
 也可以跳过 TUI：
 
-```powershell
-node packages\installer\lib\cli.js install --preset frontend --profile web --harness C:\Users\24790\Desktop\deepseek-harness
-node packages\installer\lib\cli.js install --preset backend --profile web --harness C:\Users\24790\Desktop\deepseek-harness
-node packages\installer\lib\cli.js install --preset full --profile web --harness C:\Users\24790\Desktop\deepseek-harness
-node packages\installer\lib\cli.js install --modules core,github --profile web --harness C:\Users\24790\Desktop\deepseek-harness
+```sh
+npx dsh-devkit install --preset frontend --profile web
+npx dsh-devkit install --preset backend --profile web
+npx dsh-devkit install --preset full --profile web
+npx dsh-devkit install --modules core,github --profile web
 ```
 
-安装器会在最后自动运行 `dsh --profile <name> --dump-config`。仅查看将执行的命令可加 `--dry-run`。
+安装器会在最后自动运行 `dsh --profile <name> --dump-config`。仅查看将执行的命令可加 `--dry-run`。如果已经把 CLI 安装到 `PATH`，以上命令中的 `npx dsh-devkit` 可直接写成 `dsh-devkit`。
 
-发布到 npm 后的目标入口保持为：
+## 从源码 checkout 运行
 
-```sh
-npx dsh-devkit install
+本地开发此仓库时使用相对路径。安装器默认自动调用 `PATH` 中的 `dsh`；只有要运行 Harness 源码 checkout 时才传 `--harness <path-to-deepseek-harness>`：
+
+```powershell
+git clone https://github.com/ophielel/dsh-devkit.git
+cd dsh-devkit
+pnpm install --frozen-lockfile
+node ./packages/installer/lib/cli.js doctor
+node ./packages/installer/lib/cli.js install --profile web --harness <path-to-deepseek-harness>
 ```
 
 ## GitHub 凭据
@@ -62,7 +67,7 @@ $env:GITHUB_PERSONAL_ACCESS_TOKEN = '<fine-grained PAT>'
 本地源码 checkout 首次启动前需要按 Harness 官方说明构建一次：
 
 ```powershell
-cd C:\Users\24790\Desktop\deepseek-harness
+cd <path-to-deepseek-harness>
 pnpm install
 pnpm run build
 pnpm dsh --profile web
@@ -102,8 +107,8 @@ Safety Guard 只是 defense-in-depth 分类器，不是 shell/PowerShell/SQL 解
 
 ## 卸载
 
-```powershell
-node packages\installer\lib\cli.js uninstall --modules core,github,browser,runtime --profile web --harness C:\Users\24790\Desktop\deepseek-harness
+```sh
+npx dsh-devkit uninstall --modules core,github,browser,runtime --profile web
 ```
 
 卸载同样通过官方 `dsh plugin remove`，不会手工编辑 profile manifest。
@@ -111,14 +116,14 @@ node packages\installer\lib\cli.js uninstall --modules core,github,browser,runti
 ## 测试
 
 ```powershell
-cd C:\Users\24790\Desktop\10\dsh-devkit
 pnpm test
 pnpm run lint
+pnpm check:portability
 pnpm audit:prod
 pnpm verify:pack
 ```
 
-`verify:pack` 会真实打出五个 npm tarball，在全新的临时项目中执行 `npm install`，检查发布文件，再运行安装后 CLI 的 help 与全模块 dry-run。CI 在 Node 22.19 和 Node 24 上执行语法检查、36 项测试、高危生产依赖审计和该安装烟测。MVP 还通过了隔离 `DSH_HOME` 下的真实 Bundle 安装、`--dump-config`、Web profile 启动与 HTTP 200 烟测，以及 Windows ConPTY 中的方向键/选择/提交测试。
+`check:portability` 会扫描已跟踪及待提交文件，拒绝工作站目录、开发者 home 路径、盘符路径和 UNC 路径。`verify:pack` 会真实打出五个 npm tarball，在全新的临时项目中执行 `npm install`，检查发布文件的可移植性，再运行安装后 CLI 的 help 与全模块 dry-run。CI 在 Node 22.19 和 Node 24 上执行同一套门禁。MVP 还通过了隔离 `DSH_HOME` 下的真实 Bundle 安装、`--dump-config`、Web profile 启动与 HTTP 200 烟测，以及 Windows ConPTY 中的方向键/选择/提交测试。
 
 ## 常见问题
 

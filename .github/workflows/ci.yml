@@ -39,6 +39,9 @@ jobs:
       - name: Install locked dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Check portable published content
+        run: pnpm check:portability
+
       - name: Syntax check
         run: pnpm lint
 

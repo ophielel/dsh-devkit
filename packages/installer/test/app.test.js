@@ -27,8 +27,8 @@ test('module selection uses injected picker only in interactive mode', async () 
 
 test('plugin arguments preserve the official Harness profile management surface', () => {
   assert.deepEqual(
-    createPluginArgs('install', 'dev', 'C:\\bundle'),
-    ['plugin', '--profile', 'dev', 'add', 'C:\\bundle'],
+    createPluginArgs('install', 'dev', './bundle'),
+    ['plugin', '--profile', 'dev', 'add', './bundle'],
   )
   assert.deepEqual(
     createPluginArgs('uninstall', 'web', 'dsh-devkit-core'),

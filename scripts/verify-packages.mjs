@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process'
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { basename, join, resolve } from 'node:path'
+import { scanDirectory } from './check-portability.mjs'
 
 const root = resolve(import.meta.dirname, '..')
 const packageDirectories = ['installer', 'core', 'github', 'browser', 'runtime']
@@ -52,6 +53,11 @@ function verifyInstalledPackage(directory) {
     throw new Error(`packed ${sourceManifest.name} is missing cordis.patch.yml`)
   }
   if (existsSync(join(installedRoot, 'test'))) throw new Error(`${sourceManifest.name} unexpectedly published test files`)
+  const portabilityViolations = scanDirectory(installedRoot)
+  if (portabilityViolations.length > 0) {
+    const locations = portabilityViolations.map(violation => `${violation.file}:${violation.line}`).join(', ')
+    throw new Error(`${sourceManifest.name} contains workstation-specific paths: ${locations}`)
+  }
 }
 
 function verifyInstallerCli() {

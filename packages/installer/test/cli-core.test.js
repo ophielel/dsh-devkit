@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { join } from 'node:path'
+import { resolve } from 'node:path'
 import test from 'node:test'
 import { buildHarnessInvocation, packageSpecFor } from '../lib/execution.js'
 import { parseArgs } from '../lib/options.js'
@@ -8,13 +8,13 @@ import { createPickerState } from '../lib/selection.js'
 
 test('argument parser accepts a non-interactive install preset and Harness source path', () => {
   assert.deepEqual(
-    parseArgs(['install', '--preset', 'backend', '--profile', 'dev', '--harness', 'C:\\src\\harness', '--dry-run']),
+    parseArgs(['install', '--preset', 'backend', '--profile', 'dev', '--harness', './harness', '--dry-run']),
     {
       command: 'install',
       preset: 'backend',
       modules: undefined,
       profile: 'dev',
-      harness: 'C:\\src\\harness',
+      harness: './harness',
       dryRun: true,
       yes: false,
       noVerify: false,
@@ -30,18 +30,18 @@ test('argument parser rejects conflicting module selectors', () => {
 })
 
 test('Harness invocation uses source checkout when supplied and installed CLI otherwise', () => {
-  const source = buildHarnessInvocation('C:\\src\\harness', ['plugin', '--profile', 'web', 'add', 'x'])
+  const source = buildHarnessInvocation('./harness', ['plugin', '--profile', 'web', 'add', 'x'])
   assert.equal(source.command, process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm')
   assert.deepEqual(source.args, ['dsh', 'plugin', '--profile', 'web', 'add', 'x'])
-  assert.equal(source.cwd, 'C:\\src\\harness')
+  assert.equal(source.cwd, './harness')
 
   const installed = buildHarnessInvocation(undefined, ['--profile', 'web', '--dump-config'])
   assert.equal(installed.command, process.platform === 'win32' ? 'dsh.cmd' : 'dsh')
   assert.deepEqual(installed.args, ['--profile', 'web', '--dump-config'])
 })
 
-test('local package spec is an absolute directory and registry spec pins the installer version', () => {
-  assert.equal(packageSpecFor('core', { localRoot: 'C:\\devkit', version: '0.1.0' }), join('C:\\devkit', 'packages', 'core'))
+test('local package spec resolves from a checkout and registry spec pins the installer version', () => {
+  assert.equal(packageSpecFor('core', { localRoot: './devkit', version: '0.1.0' }), resolve('./devkit', 'packages', 'core'))
   assert.equal(packageSpecFor('github', { version: '0.1.0' }), 'dsh-devkit-github@0.1.0')
 })
 

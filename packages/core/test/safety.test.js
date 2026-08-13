@@ -3,7 +3,7 @@ import test from 'node:test'
 import { denyReasonForExecution, reasonForExecution } from '../safety.js'
 
 test('asks before destructive shell and git operations', () => {
-  assert.match(reasonForExecution({ name: 'pwsh', arguments: { command: 'Remove-Item -Recurse C:\\work\\build' } }), /破坏性/)
+  assert.match(reasonForExecution({ name: 'pwsh', arguments: { command: 'Remove-Item -Recurse ./build' } }), /破坏性/)
   assert.match(reasonForExecution({ name: 'bash', arguments: { command: 'git push origin main --force' } }), /Git/)
   assert.match(reasonForExecution({ name: 'bash', arguments: { command: 'git reset --hard HEAD~1' } }), /Git/)
   assert.match(reasonForExecution({ name: 'cmd', arguments: { command: 'cmd /c rmdir /s /q build' } }), /破坏性/)
