@@ -40,7 +40,7 @@ dsh-devkit/
 
 ### Bundle and installation design
 
-`npx dsh-devkit install` presents a keyboard-only module picker. It invokes the official Harness plugin command once per selected module. Local development installs use absolute package paths; published installs use exact package versions. Presets are only installer shortcuts and never become a second composition format.
+`npx dsh-devkit install` presents a keyboard-only module picker. It invokes the official Harness plugin command once per selected module. Source-checkout installs resolve detected package locations at runtime; published installs use exact package versions. Presets are only installer shortcuts and never become a second composition format.
 
 The installer's state machine has four events: `move`, `toggle`, `submit`, and `cancel`. Rendering is a pure projection of selection state. Non-interactive use requires `--preset` or explicit `--modules`, and emits no ANSI control sequences.
 
@@ -91,6 +91,14 @@ Installing all MVP Bundles registered every MCP and Runtime schema for every req
 - Rule matching can have false positives and false negatives. Harness sandbox, approval/subprocess policy, OS/container isolation, remote service permissions, and token scope remain authoritative.
 - Secret denial prevents forwarding recognized credential values in a tool call. It cannot erase a value already placed in a prompt, log, session, subprocess environment, or remote system.
 - CI pins third-party Actions to immutable commits and gates syntax, tests, high-severity production dependency audit, package contents, clean npm installation, and installed CLI startup on both supported Node release lines.
+
+### Safety classification details
+
+The `tools/pre-execute` classifier requests Harness-native approval for recursive or forced deletion, device writes, dangerous Git workspace/history/remote operations, encoded or dynamically evaluated commands, privilege escalation, permission widening, sensitive credential-store or process-environment reads, unknown or mutating GitHub operations, SQL data/schema writes, high-authority browser actions, Runtime activation, and Cordis define/run/stop/undefine calls.
+
+Credential-shaped values already present in tool arguments take a stricter path: the monotonic `tools.guard()` rule denies recognized tokens, bearer credentials, and private-key material instead of offering an approval escape hatch. Placeholder values remain usable in documentation and dry runs.
+
+This policy is deliberately layered rather than presented as containment. `tools.restrict()` reduces the persistent model-visible surface, the execution guard fails closed for an unenabled DevKit module when catalog refresh state is stale, and approval handles high-risk but potentially legitimate calls. None of these mechanisms replaces Harness sandboxing, subprocess and approval policy, OS/container isolation, remote-service permissions, or credential scope.
 
 ### DeepSeek model implications
 
