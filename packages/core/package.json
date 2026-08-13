@@ -10,6 +10,7 @@
   },
   "files": [
     "index.js",
+    "capabilities.js",
     "safety.js",
     "skills.js",
     "skills",
@@ -25,4 +26,3 @@
   },
   "license": "MIT"
 }
-

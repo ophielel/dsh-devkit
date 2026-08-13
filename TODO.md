@@ -12,12 +12,15 @@
 - [x] Doctor and uninstall paths
 - [x] Local Harness install, config dump, and startup smoke test
 - [x] Usage and troubleshooting documentation
+- [x] GitHub Actions CI on supported Node release lines
+- [x] Local tarball pack, clean install, and installed CLI smoke test
+- [x] Task-scoped GitHub, Browser, and Runtime tool visibility
+- [x] Layered approval plus monotonic credential-value denial
 
 ## After MVP
 
 - [ ] Sentry observability Bundle
 - [ ] PostgreSQL read-only Bundle with SQL-level enforcement
 - [ ] Code intelligence/code graph provider evaluation
-- [ ] Per-agent tool restrictions and smaller task-specific GitHub toolsets
 - [ ] Persist a reviewed temporary Cordis package as a normal project plugin
-- [ ] Publish packages and add registry tarball installation tests
+- [ ] Publish packages and validate installation from the public registry

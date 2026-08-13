@@ -8,7 +8,9 @@
   },
   "scripts": {
     "test": "node --test packages/*/test/*.test.js",
-    "lint": "node --check packages/installer/lib/cli.js && node --check packages/installer/lib/app.js && node --check packages/installer/lib/execution.js && node --check packages/installer/lib/options.js && node --check packages/installer/lib/selection.js && node --check packages/installer/lib/tui.js && node --check packages/core/index.js && node --check packages/core/safety.js && node --check packages/core/skills.js",
+    "lint": "node --check packages/installer/lib/cli.js && node --check packages/installer/lib/app.js && node --check packages/installer/lib/execution.js && node --check packages/installer/lib/options.js && node --check packages/installer/lib/selection.js && node --check packages/installer/lib/tui.js && node --check packages/core/index.js && node --check packages/core/capabilities.js && node --check packages/core/safety.js && node --check packages/core/skills.js && node --check scripts/verify-packages.mjs",
+    "audit:prod": "pnpm --registry=https://registry.npmjs.org audit --prod --audit-level high",
+    "verify:pack": "node scripts/verify-packages.mjs",
     "dev": "node packages/installer/lib/cli.js"
   }
 }
