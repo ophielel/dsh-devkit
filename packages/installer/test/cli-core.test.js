@@ -50,7 +50,7 @@ test('Harness invocation prefers dsh on PATH', () => {
   assert.deepEqual(invocation.args, ['--profile', 'web', '--dump-config'])
 })
 
-test('Harness invocation falls back to the pinned official package through npx', () => {
+test('Harness invocation falls back to the official package through npx without assuming a published version', () => {
   const invocation = buildHarnessInvocation(
     undefined,
     ['--profile', 'web', '--dump-config'],
@@ -59,7 +59,7 @@ test('Harness invocation falls back to the pinned official package through npx',
   assert.equal(invocation.command, process.platform === 'win32' ? 'npx.cmd' : 'npx')
   assert.deepEqual(invocation.args, [
     '--yes',
-    '@deepseek-ai/dsh@0.1.0-rc.5',
+    '@deepseek-ai/dsh',
     '--profile',
     'web',
     '--dump-config',

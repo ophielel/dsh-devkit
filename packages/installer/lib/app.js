@@ -4,7 +4,7 @@ import { commandExists, HARNESS_PACKAGE_SPEC, HARNESS_VERSION, packageSpecFor, r
 import { MODULES, modulesForPreset, normalizeModuleNames } from './selection.js'
 import { runPicker } from './tui.js'
 
-const VERSION = '0.1.1'
+const VERSION = '0.1.2'
 
 export async function resolveModuleSelection(options, {
   isInteractive = process.stdin.isTTY && process.stdout.isTTY,

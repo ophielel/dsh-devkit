@@ -4,7 +4,7 @@ import { MODULES } from './selection.js'
 
 const moduleById = new Map(MODULES.map(module => [module.id, module]))
 export const HARNESS_VERSION = '0.1.0-rc.5'
-export const HARNESS_PACKAGE_SPEC = `@deepseek-ai/dsh@${HARNESS_VERSION}`
+export const HARNESS_PACKAGE_SPEC = '@deepseek-ai/dsh'
 
 export function buildHarnessInvocation(harness, args, { commandExists: hasCommand = commandExists } = {}) {
   if (harness !== undefined) {

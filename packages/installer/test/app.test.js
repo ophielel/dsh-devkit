@@ -36,7 +36,7 @@ test('plugin arguments preserve the official Harness profile management surface'
   )
 })
 
-test('doctor accepts the pinned npx fallback when dsh is not on PATH', async () => {
+test('doctor accepts the unversioned npx fallback when dsh is not on PATH', async () => {
   let output = ''
   const status = await runApp(
     { command: 'doctor' },
@@ -48,7 +48,7 @@ test('doctor accepts the pinned npx fallback when dsh is not on PATH', async () 
   )
 
   assert.equal(status, 0)
-  assert.match(output, /✓ DeepSeek Harness: via npx @deepseek-ai\/dsh@0\.1\.0-rc\.5/)
+  assert.match(output, /^✓ DeepSeek Harness: via npx @deepseek-ai\/dsh$/m)
   assert.doesNotMatch(output, /✗ dsh/)
 })
 
