@@ -89,34 +89,17 @@ export GITHUB_PERSONAL_ACCESS_TOKEN='<fine-grained PAT>'
 
 ## 开始使用
 
-安装完成后，推荐通过 DevKit 启动 Harness：
+安装完成后启动 Harness。已有全局 `dsh` 时运行：
 
 ```sh
-npx dsh-devkit launch --profile web
+dsh --profile web
 ```
 
-该命令仍会优先使用 `PATH` 中的 `dsh`，否则通过 `npx` 调用官方 Harness。它不会把启动环境中的 `DEEPSEEK_API_KEY` 传给 Harness，因此 Models 页面可以保存和轮换 DeepSeek API 密钥；系统环境变量本身不会被修改。
-
-如果当前运行明确需要使用环境变量中的密钥（例如 CI 或一次性覆盖），请直接启动官方 Harness：
+没有全局 `dsh` 时运行：
 
 ```sh
 npx --yes @deepseek-ai/dsh --profile web
-# 或：dsh --profile web
 ```
-
-可以先检查实际启动命令：
-
-```sh
-npx dsh-devkit launch --profile web --dry-run
-```
-
-从 Harness 源码 checkout 启动时：
-
-```sh
-npx dsh-devkit launch --profile web --harness <path-to-deepseek-harness>
-```
-
-- `launch` 只移除子进程的 `DEEPSEEK_API_KEY`；不会读取、显示或删除它，也不会改变其他环境变量。
 
 - GitHub 能力默认按任务启用；需要时让 agent 加载 `setup-github` Skill。
 - 浏览器能力需要时加载 `setup-browser` Skill；仅在 Playwright 明确提示时安装浏览器文件。

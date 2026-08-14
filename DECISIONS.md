@@ -103,22 +103,3 @@ This policy is deliberately layered rather than presented as containment. `tools
 ### DeepSeek model implications
 
 Current official DeepSeek V4 API models support thinking-mode tool calls, a 1M context window, and large outputs. Tool-calling conversations must preserve `reasoning_content` across subsequent tool requests. DevKit therefore leaves model message handling to Harness, keeps tool schemas scoped by installed Bundle, prefers short structured tool output, and encodes long workflows as lazily loaded Skills rather than permanent system-prompt text.
-
-## 2026-08-14 — Editable DeepSeek credentials use an explicit launch boundary
-
-### Context
-
-Harness intentionally ranks an inherited `DEEPSEEK_API_KEY` above its managed credential document. Its credential API consequently reports the reference as configured but not writable, and the Models page renders “Provided by the launch environment (read-only).” This is honest for CI, container `-e`, and one-run shell overrides, but a persistent Windows user environment variable also triggers it and prevents rotation through the UI.
-
-### Decision
-
-Add `dsh-devkit launch --profile <name>` as an opt-in launcher. It reuses the installer's existing source-checkout, PATH, and unversioned npm Harness resolution, but projects a child environment that omits only `DEEPSEEK_API_KEY`, matched case-insensitively on Windows and exactly on POSIX. The projection enumerates names and skips that name without reading its value. All other entries are forwarded unchanged, and neither the process environment nor user- or machine-scoped settings are mutated.
-
-Do not replace or monkeypatch Harness's credential provider. Once the environment reference is absent, the official provider and Models page own validation, secure persistence, hot reload, and credential resolution.
-
-### Consequences and limits
-
-- The Models page can store and rotate the DeepSeek key in Harness's managed credential document for processes launched through this command.
-- Direct `dsh` and `npx @deepseek-ai/dsh` launches retain official environment-first behavior for operator-controlled runs.
-- A user who returns to a direct launch while the environment variable remains set will see the field as read-only again; DevKit does not silently delete persistent environment configuration.
-- The child process receives the rest of the launch environment. This convenience is secret-minimizing behavior for one known reference, not a general environment scrubber or security sandbox.

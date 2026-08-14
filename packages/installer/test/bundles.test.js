@@ -23,7 +23,7 @@ test('every selectable component is an official Harness Bundle package', () => {
 
 test('installer release version is independent from Bundle versions', () => {
   const manifest = JSON.parse(readFileSync(resolve(root, 'packages', 'installer', 'package.json'), 'utf8'))
-  assert.equal(manifest.version, '0.1.3')
+  assert.equal(manifest.version, '0.1.2')
 })
 
 test('GitHub Bundle uses official remote MCP with narrowed engineering toolsets and env-only auth', () => {

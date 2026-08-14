@@ -33,20 +33,6 @@ export function commandExists(command) {
   return spawnSync(locator, [command], { stdio: 'ignore' }).status === 0
 }
 
-export function withoutDeepSeekApiKey(env = process.env, { platform = process.platform } = {}) {
-  const projected = {}
-  for (const key of Object.keys(env)) {
-    // Windows environment names are case-insensitive. Skip by name before
-    // indexing the source so this projection never reads the secret value.
-    const isDeepSeekKey = platform === 'win32'
-      ? key.toUpperCase() === 'DEEPSEEK_API_KEY'
-      : key === 'DEEPSEEK_API_KEY'
-    if (isDeepSeekKey) continue
-    projected[key] = env[key]
-  }
-  return projected
-}
-
 export function packageSpecFor(moduleId, { localRoot, version } = {}) {
   const module = moduleById.get(moduleId)
   if (module === undefined) throw new Error(`未知模块：${moduleId}`)
@@ -54,12 +40,7 @@ export function packageSpecFor(moduleId, { localRoot, version } = {}) {
   return `${module.packageName}@${version ?? module.version}`
 }
 
-export function runHarness(harness, args, {
-  dryRun = false,
-  env = process.env,
-  stdout = process.stdout,
-  stderr = process.stderr,
-} = {}) {
+export function runHarness(harness, args, { dryRun = false, stdout = process.stdout, stderr = process.stderr } = {}) {
   const invocation = buildHarnessInvocation(harness, args)
   const printable = [invocation.command, ...invocation.args].map(quoteArgument).join(' ')
   stdout.write(`$ ${printable}\n`)
@@ -72,7 +53,7 @@ export function runHarness(harness, args, {
     : invocation
   const result = spawnSync(spawned.command, spawned.args, {
     cwd: invocation.cwd,
-    env,
+    env: process.env,
     stdio: 'inherit',
   })
   if (result.error !== undefined) {

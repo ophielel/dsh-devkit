@@ -66,25 +66,3 @@ test('doctor reports dsh on PATH when the global CLI is available', async () => 
   assert.equal(status, 0)
   assert.match(output, /✓ DeepSeek Harness: dsh on PATH/)
 })
-
-test('launch starts the selected Harness profile without inheriting the DeepSeek API key', async () => {
-  let observed
-  const sourceEnv = { PATH: 'bin', DeepSeek_Api_Key: 'secret', KEEP: 'value' }
-  const status = await runApp(
-    { command: 'launch', profile: 'web', harness: undefined, dryRun: false },
-    {
-      env: sourceEnv,
-      harnessRunner(harness, args, options) {
-        observed = { harness, args, options }
-        return { status: 0 }
-      },
-    },
-  )
-
-  assert.equal(status, 0)
-  assert.equal(observed.harness, undefined)
-  assert.deepEqual(observed.args, ['--profile', 'web'])
-  assert.deepEqual(observed.options.env, { PATH: 'bin', KEEP: 'value' })
-  assert.equal(observed.options.dryRun, false)
-  assert.equal(sourceEnv.DeepSeek_Api_Key, 'secret')
-})

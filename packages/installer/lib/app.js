@@ -1,10 +1,10 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { commandExists, HARNESS_PACKAGE_SPEC, HARNESS_VERSION, packageSpecFor, runHarness, withoutDeepSeekApiKey } from './execution.js'
+import { commandExists, HARNESS_PACKAGE_SPEC, HARNESS_VERSION, packageSpecFor, runHarness } from './execution.js'
 import { MODULES, modulesForPreset, normalizeModuleNames } from './selection.js'
 import { runPicker } from './tui.js'
 
-const VERSION = '0.1.3'
+const VERSION = '0.1.2'
 
 export async function resolveModuleSelection(options, {
   isInteractive = process.stdin.isTTY && process.stdout.isTTY,
@@ -29,19 +29,6 @@ export async function runApp(options, io = {}) {
   }
   if (options.command === 'doctor') {
     return runDoctor(options, { stdout, commandExists: io.commandExists ?? commandExists })
-  }
-  if (options.command === 'launch') {
-    const result = (io.harnessRunner ?? runHarness)(
-      options.harness,
-      ['--profile', options.profile],
-      {
-        dryRun: options.dryRun,
-        env: withoutDeepSeekApiKey(io.env ?? process.env),
-        stdout,
-        stderr,
-      },
-    )
-    return result.status
   }
 
   const selected = await resolveModuleSelection(options, {
@@ -119,5 +106,5 @@ function findLocalWorkspaceRoot() {
 }
 
 function helpText() {
-  return `dsh-devkit ${VERSION}\n\nUsage:\n  dsh-devkit install [--profile web] [--preset frontend|backend|full]\n  dsh-devkit install --modules core,github,browser,runtime\n  dsh-devkit uninstall --modules core,github\n  dsh-devkit launch [--profile web] [--harness <source-checkout>]\n  dsh-devkit doctor [--harness <source-checkout>]\n\nOptions:\n  --harness <path>  Use a DeepSeek Harness source checkout through pnpm dsh\n  --dry-run         Print the Harness command without executing it\n  --no-verify       Skip dsh --dump-config after installation\n`
+  return `dsh-devkit ${VERSION}\n\nUsage:\n  dsh-devkit install [--profile web] [--preset frontend|backend|full]\n  dsh-devkit install --modules core,github,browser,runtime\n  dsh-devkit uninstall --modules core,github\n  dsh-devkit doctor [--harness <source-checkout>]\n\nOptions:\n  --harness <path>  Use a DeepSeek Harness source checkout through pnpm dsh\n  --dry-run         Print official dsh plugin commands without executing them\n  --no-verify       Skip dsh --dump-config after installation\n`
 }
