@@ -66,6 +66,11 @@ function verifyInstallerCli() {
   const cli = join(installerRoot, 'lib', 'cli.js')
   const help = run(process.execPath, [cli, '--help'], consumerDirectory)
   if (!help.includes(`dsh-devkit ${installerManifest.version}`)) throw new Error('packed CLI help did not start')
+  if (!help.includes('dsh-devkit launch')) throw new Error('packed CLI help does not expose launch')
+
+  const launch = run(process.execPath, [cli, 'launch', '--profile', 'web', '--dry-run'], consumerDirectory)
+  const expectedLaunch = `${process.platform === 'win32' ? 'npx.cmd' : 'npx'} --yes @deepseek-ai/dsh --profile web`
+  if (!launch.includes(expectedLaunch)) throw new Error('packed CLI launch did not use the official unversioned Harness fallback')
 
   const dryRun = run(process.execPath, [cli, 'install', '--preset', 'full', '--dry-run'], consumerDirectory)
   for (const directory of ['core', 'github', 'browser', 'runtime']) {

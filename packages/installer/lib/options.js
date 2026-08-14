@@ -34,15 +34,20 @@ export function parseArgs(argv) {
     else if (flag === '--help' || flag === '-h') options.command = 'help'
     else throw new Error(`未知参数：${flag}`)
   }
-  if (!['install', 'uninstall', 'doctor', 'help'].includes(options.command)) {
+  if (!['install', 'uninstall', 'launch', 'doctor', 'help'].includes(options.command)) {
     throw new Error(`未知命令：${options.command}`)
   }
   if (options.preset !== undefined && options.modules !== undefined) {
     throw new Error('不能同时使用 --preset 和 --modules')
+  }
+  if (options.command === 'launch') {
+    if (options.preset !== undefined) throw new Error('launch 不支持 --preset')
+    if (options.modules !== undefined) throw new Error('launch 不支持 --modules')
+    if (options.yes) throw new Error('launch 不支持 --yes')
+    if (options.noVerify) throw new Error('launch 不支持 --no-verify')
   }
   if (!/^[A-Za-z0-9_-]{1,48}$/.test(options.profile)) {
     throw new Error('profile 只能包含字母、数字、下划线和连字符')
   }
   return options
 }
-

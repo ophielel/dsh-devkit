@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import test from 'node:test'
-import { buildHarnessInvocation, packageSpecFor } from '../lib/execution.js'
+import { buildHarnessInvocation, packageSpecFor, withoutDeepSeekApiKey } from '../lib/execution.js'
 import { parseArgs } from '../lib/options.js'
 import { decodeKey, displayWidth, renderPicker } from '../lib/tui.js'
 import { createPickerState } from '../lib/selection.js'
@@ -26,6 +26,26 @@ test('argument parser rejects conflicting module selectors', () => {
   assert.throws(
     () => parseArgs(['install', '--preset', 'full', '--modules', 'core']),
     /不能同时使用 --preset 和 --modules/,
+  )
+})
+
+test('argument parser accepts the editable-credentials launch workflow', () => {
+  assert.deepEqual(
+    parseArgs(['launch', '--profile', 'dev', '--harness', './harness', '--dry-run']),
+    {
+      command: 'launch',
+      preset: undefined,
+      modules: undefined,
+      profile: 'dev',
+      harness: './harness',
+      dryRun: true,
+      yes: false,
+      noVerify: false,
+    },
+  )
+  assert.throws(
+    () => parseArgs(['launch', '--modules', 'core']),
+    /launch 不支持 --modules/,
   )
 })
 
@@ -64,6 +84,29 @@ test('Harness invocation falls back to the official package through npx without 
     'web',
     '--dump-config',
   ])
+})
+
+test('editable-credentials launch handles Windows environment names case-insensitively', () => {
+  const source = {
+    PATH: 'bin',
+    DEEPSEEK_API_KEY: 'upper-secret',
+    deepseek_api_key: 'lower-secret',
+    OTHER_API_KEY: 'keep-secret',
+  }
+  const projected = withoutDeepSeekApiKey(source, { platform: 'win32' })
+
+  assert.deepEqual(projected, { PATH: 'bin', OTHER_API_KEY: 'keep-secret' })
+  assert.equal(source.DEEPSEEK_API_KEY, 'upper-secret')
+  assert.equal(source.deepseek_api_key, 'lower-secret')
+})
+
+test('editable-credentials launch preserves differently cased POSIX environment names', () => {
+  const projected = withoutDeepSeekApiKey(
+    { DEEPSEEK_API_KEY: 'remove-secret', deepseek_api_key: 'keep-secret', PATH: 'bin' },
+    { platform: 'linux' },
+  )
+
+  assert.deepEqual(projected, { deepseek_api_key: 'keep-secret', PATH: 'bin' })
 })
 
 test('local package spec resolves from a checkout and registry spec pins the module version', () => {
