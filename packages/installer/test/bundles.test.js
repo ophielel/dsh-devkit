@@ -21,6 +21,11 @@ test('every selectable component is an official Harness Bundle package', () => {
   }
 })
 
+test('installer release version is independent from Bundle versions', () => {
+  const manifest = JSON.parse(readFileSync(resolve(root, 'packages', 'installer', 'package.json'), 'utf8'))
+  assert.equal(manifest.version, '0.1.1')
+})
+
 test('GitHub Bundle uses official remote MCP with narrowed engineering toolsets and env-only auth', () => {
   const { patch } = readBundle('github')
   assert.match(patch, /https:\/\/api\.githubcopilot\.com\/mcp\//)

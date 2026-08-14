@@ -22,7 +22,13 @@
 
 ## 安装
 
-需要 Node.js `22.19+`（22.x）或 `24+`、DeepSeek Harness `0.1.0-rc.5`，并确保 `dsh` 已在 `PATH` 中。
+需要 Node.js `22.19+`（22.x）或 `24+`，以及随 Node.js 提供的 `npx`。当前版本适配官方 DeepSeek Harness `0.1.0-rc.5`。
+
+不需要全局安装 Harness，也不需要执行 `npm install -g @deepseek-ai/dsh`。`dsh-devkit` 会优先使用 `PATH` 中已有的 `dsh`；如果不存在，则自动调用：
+
+```sh
+npx --yes @deepseek-ai/dsh@0.1.0-rc.5 ...
+```
 
 先检查环境：
 
@@ -83,10 +89,16 @@ export GITHUB_PERSONAL_ACCESS_TOKEN='<fine-grained PAT>'
 
 ## 开始使用
 
-安装完成后正常启动 Harness：
+安装完成后启动 Harness。已有全局 `dsh` 时运行：
 
 ```sh
 dsh --profile web
+```
+
+没有全局 `dsh` 时运行：
+
+```sh
+npx --yes @deepseek-ai/dsh@0.1.0-rc.5 --profile web
 ```
 
 - GitHub 能力默认按任务启用；需要时让 agent 加载 `setup-github` Skill。

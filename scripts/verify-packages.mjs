@@ -61,13 +61,18 @@ function verifyInstalledPackage(directory) {
 }
 
 function verifyInstallerCli() {
-  const cli = join(consumerDirectory, 'node_modules', 'dsh-devkit', 'lib', 'cli.js')
+  const installerRoot = join(consumerDirectory, 'node_modules', 'dsh-devkit')
+  const installerManifest = JSON.parse(readFileSync(join(installerRoot, 'package.json'), 'utf8'))
+  const cli = join(installerRoot, 'lib', 'cli.js')
   const help = run(process.execPath, [cli, '--help'], consumerDirectory)
-  if (!help.includes('dsh-devkit 0.1.0')) throw new Error('packed CLI help did not start')
+  if (!help.includes(`dsh-devkit ${installerManifest.version}`)) throw new Error('packed CLI help did not start')
 
   const dryRun = run(process.execPath, [cli, 'install', '--preset', 'full', '--dry-run'], consumerDirectory)
-  for (const packageName of ['dsh-devkit-core', 'dsh-devkit-github', 'dsh-devkit-browser', 'dsh-devkit-runtime']) {
-    if (!dryRun.includes(`${packageName}@0.1.0`)) throw new Error(`packed CLI did not resolve ${packageName}`)
+  for (const directory of ['core', 'github', 'browser', 'runtime']) {
+    const manifest = JSON.parse(readFileSync(join(root, 'packages', directory, 'package.json'), 'utf8'))
+    if (!dryRun.includes(`${manifest.name}@${manifest.version}`)) {
+      throw new Error(`packed CLI did not resolve ${manifest.name}@${manifest.version}`)
+    }
   }
 }
 

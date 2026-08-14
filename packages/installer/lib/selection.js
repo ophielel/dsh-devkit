@@ -2,24 +2,28 @@ export const MODULES = Object.freeze([
   Object.freeze({
     id: 'core',
     packageName: 'dsh-devkit-core',
+    version: '0.1.0',
     title: 'Core safety + skills',
     description: '危险操作审批守卫，以及开发、调试和评审工作流',
   }),
   Object.freeze({
     id: 'github',
     packageName: 'dsh-devkit-github',
+    version: '0.1.0',
     title: 'GitHub',
     description: 'Issue、Pull Request 与 Actions（需要 GitHub PAT）',
   }),
   Object.freeze({
     id: 'browser',
     packageName: 'dsh-devkit-browser',
+    version: '0.1.0',
     title: 'Playwright Browser',
     description: 'DOM、可访问性快照、Console 与 Network 验证',
   }),
   Object.freeze({
     id: 'runtime',
     packageName: 'dsh-devkit-runtime',
+    version: '0.1.0',
     title: 'Runtime extensions',
     description: '检查并临时加载、停止或卸载 Cordis 能力',
   }),

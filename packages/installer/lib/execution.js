@@ -3,27 +3,41 @@ import { resolve } from 'node:path'
 import { MODULES } from './selection.js'
 
 const moduleById = new Map(MODULES.map(module => [module.id, module]))
+export const HARNESS_VERSION = '0.1.0-rc.5'
+export const HARNESS_PACKAGE_SPEC = `@deepseek-ai/dsh@${HARNESS_VERSION}`
 
-export function buildHarnessInvocation(harness, args) {
+export function buildHarnessInvocation(harness, args, { commandExists: hasCommand = commandExists } = {}) {
   if (harness !== undefined) {
     return {
-      command: process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm',
+      command: platformCommand('pnpm'),
       args: ['dsh', ...args],
       cwd: harness,
     }
   }
+  if (hasCommand('dsh')) {
+    return {
+      command: platformCommand('dsh'),
+      args,
+      cwd: process.cwd(),
+    }
+  }
   return {
-    command: process.platform === 'win32' ? 'dsh.cmd' : 'dsh',
-    args,
+    command: platformCommand('npx'),
+    args: ['--yes', HARNESS_PACKAGE_SPEC, ...args],
     cwd: process.cwd(),
   }
 }
 
-export function packageSpecFor(moduleId, { localRoot, version }) {
+export function commandExists(command) {
+  const locator = process.platform === 'win32' ? 'where.exe' : 'which'
+  return spawnSync(locator, [command], { stdio: 'ignore' }).status === 0
+}
+
+export function packageSpecFor(moduleId, { localRoot, version } = {}) {
   const module = moduleById.get(moduleId)
   if (module === undefined) throw new Error(`未知模块：${moduleId}`)
   if (localRoot !== undefined) return resolve(localRoot, 'packages', moduleId)
-  return `${module.packageName}@${version}`
+  return `${module.packageName}@${version ?? module.version}`
 }
 
 export function runHarness(harness, args, { dryRun = false, stdout = process.stdout, stderr = process.stderr } = {}) {
@@ -57,4 +71,8 @@ function quoteCmdArgument(value) {
 function quoteArgument(value) {
   if (/^[A-Za-z0-9_@./:\\=-]+$/.test(value)) return value
   return JSON.stringify(value)
+}
+
+function platformCommand(command) {
+  return process.platform === 'win32' ? `${command}.cmd` : command
 }

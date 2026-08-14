@@ -10,6 +10,7 @@ import {
 
 test('full preset selects every independently installable module', () => {
   assert.deepEqual(modulesForPreset('full'), MODULES.map(module => module.id))
+  assert.ok(MODULES.every(module => module.version === '0.1.0'))
 })
 
 test('frontend and backend presets keep browser exposure task-specific', () => {

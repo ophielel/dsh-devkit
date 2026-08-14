@@ -29,20 +29,46 @@ test('argument parser rejects conflicting module selectors', () => {
   )
 })
 
-test('Harness invocation uses source checkout when supplied and installed CLI otherwise', () => {
-  const source = buildHarnessInvocation('./harness', ['plugin', '--profile', 'web', 'add', 'x'])
+test('Harness invocation uses pnpm dsh for a source checkout', () => {
+  const source = buildHarnessInvocation(
+    './harness',
+    ['plugin', '--profile', 'web', 'add', 'x'],
+    { commandExists: () => { throw new Error('PATH must not be checked for a source checkout') } },
+  )
   assert.equal(source.command, process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm')
   assert.deepEqual(source.args, ['dsh', 'plugin', '--profile', 'web', 'add', 'x'])
   assert.equal(source.cwd, './harness')
-
-  const installed = buildHarnessInvocation(undefined, ['--profile', 'web', '--dump-config'])
-  assert.equal(installed.command, process.platform === 'win32' ? 'dsh.cmd' : 'dsh')
-  assert.deepEqual(installed.args, ['--profile', 'web', '--dump-config'])
 })
 
-test('local package spec resolves from a checkout and registry spec pins the installer version', () => {
+test('Harness invocation prefers dsh on PATH', () => {
+  const invocation = buildHarnessInvocation(
+    undefined,
+    ['--profile', 'web', '--dump-config'],
+    { commandExists: command => command === 'dsh' },
+  )
+  assert.equal(invocation.command, process.platform === 'win32' ? 'dsh.cmd' : 'dsh')
+  assert.deepEqual(invocation.args, ['--profile', 'web', '--dump-config'])
+})
+
+test('Harness invocation falls back to the pinned official package through npx', () => {
+  const invocation = buildHarnessInvocation(
+    undefined,
+    ['--profile', 'web', '--dump-config'],
+    { commandExists: () => false },
+  )
+  assert.equal(invocation.command, process.platform === 'win32' ? 'npx.cmd' : 'npx')
+  assert.deepEqual(invocation.args, [
+    '--yes',
+    '@deepseek-ai/dsh@0.1.0-rc.5',
+    '--profile',
+    'web',
+    '--dump-config',
+  ])
+})
+
+test('local package spec resolves from a checkout and registry spec pins the module version', () => {
   assert.equal(packageSpecFor('core', { localRoot: './devkit', version: '0.1.0' }), resolve('./devkit', 'packages', 'core'))
-  assert.equal(packageSpecFor('github', { version: '0.1.0' }), 'dsh-devkit-github@0.1.0')
+  assert.equal(packageSpecFor('github', {}), 'dsh-devkit-github@0.1.0')
 })
 
 test('TUI key decoder maps only active picker controls', () => {
