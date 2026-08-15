@@ -23,7 +23,7 @@ test('picker moves with wraparound and toggles only the focused module', () => {
   state = applyPickerEvent(state, { type: 'move', delta: -1 })
   assert.equal(state.cursor, MODULES.length - 1)
   state = applyPickerEvent(state, { type: 'toggle' })
-  assert.deepEqual([...state.selected].sort(), ['core', 'runtime'])
+  assert.deepEqual([...state.selected].sort(), ['core', 'token-watch'])
 })
 
 test('picker submit refuses an empty selection and accepts a non-empty selection', () => {

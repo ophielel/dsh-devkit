@@ -1,81 +1,64 @@
-# dsh-devkit
+# ⚡ dsh-devkit
 
-面向 DeepSeek Harness 的软件开发增强套件：按需安装 GitHub、浏览器验证、开发 Skills 和临时运行时扩展，不需要 fork 或修改 Harness。
+> 你的 DeepSeek Harness 开发增强套件——装上就能干活，不必 fork，不必魔改，不必重新发明轮子。
 
 [![CI](https://github.com/ophielel/dsh-devkit/actions/workflows/ci.yml/badge.svg)](https://github.com/ophielel/dsh-devkit/actions/workflows/ci.yml)
 
-## 能做什么
+别的工具让你配半天环境才能开始写代码，我们让你**今天就能开始**。dsh-devkit 是一套按需安装的开发能力包：GitHub、浏览器验证、九种开发工作流、一个会帮你盯着 token 消耗的监督员——全都长在 Harness 原生机制上，卸载即净，不留后遗症。
 
-- 为常见开发任务提供可复用 Skills：修复 CI、处理 GitHub Issue、评审 PR、安全重构、前端调试和环境排障。
-- 让 Harness 按任务使用 GitHub Issue、PR、Actions 等能力。
-- 使用 Playwright 检查页面结构、Console、Network 和可访问性信息。
-- 对删除、强制推送、凭据访问、浏览器高权限操作等风险调用发起审批或拒绝。
-- 在需要时启用 Harness 自带的临时 Cordis 扩展工具。
+## ✨ 它能为你做什么
 
-## 典型使用场景
+- **审慎而强大**：危险操作（删库、强推、读凭据、改权限……）自动走审批，凭据形状的参数直接拒，绝不给模型拿你的 secret 当工具参数的机会。
+- **按任务启用，不刷存在感**：GitHub / 浏览器 / 运行时扩展默认隐身，任务需要时一个 `devkit_capability` 唤起，turn 结束自动收回。你的提示词里不该躺着二十个用不上的 schema。
+- **九种开箱即用的开发 Skill**：修 CI、啃 GitHub Issue、审 PR、安全重构、前端调试、环境排障——都是"先看证据再动手"的干活流程，不是空话。
+- **临时能力，随用随走**：受信任的 Cordis 扩展按需加载、停止、卸载，生命周期全交给 Harness 自己管，我们不搞第二套注册表。
+- **Token Watch**：你的 token 账房先生。消耗超限后台审查、长时间工作定期体检、判定异常才请你拍板——详见下文。
 
-- “读取这个 Issue，修改代码并准备 PR。”
-- “检查失败的 CI，定位原因并修复。”
-- “启动页面，查看 Console 和 Network 错误。”
-- “评审这个 PR，只报告有实际影响的问题。”
-- “临时加载一段受信任的 Cordis 扩展完成专项任务。”
+## 🚀 30 秒上手
 
-## 安装
+要求 Node.js `22.19+`（22.x）或 `24+`，以及随 Node 附赠的 `npx`。不需要全局安装 Harness——`dsh-devkit` 优先用你 PATH 里已有的 `dsh`，没有就自动 `npx @deepseek-ai/dsh`。
 
-需要 Node.js `22.19+`（22.x）或 `24+`，以及随 Node.js 提供的 `npx`。源码 checkout 模式适配官方 DeepSeek Harness `0.1.0-rc.5`。
-
-不需要全局安装 Harness，也不需要执行 `npm install -g @deepseek-ai/dsh`。`dsh-devkit` 会优先使用 `PATH` 中已有的 `dsh`；如果不存在，则自动调用：
-
-```sh
-npx --yes @deepseek-ai/dsh ...
-```
-
-先检查环境：
+先体检：
 
 ```sh
 npx dsh-devkit doctor
 ```
 
-打开安装选择界面：
+打开安装选择界面（方向键移动、空格选择、回车安装）：
 
 ```sh
 npx dsh-devkit install --profile web
 ```
 
-使用方向键移动、空格选择、Enter 安装。也可以直接使用预设：
+嫌交互慢？直接上预设：
 
 ```sh
-npx dsh-devkit install --preset frontend --profile web
-npx dsh-devkit install --preset backend --profile web
-npx dsh-devkit install --preset full --profile web
+npx dsh-devkit install --preset frontend --profile web   # 前端选手全家桶
+npx dsh-devkit install --preset backend --profile web    # 后端选手全家桶
+npx dsh-devkit install --preset full --profile web       # 成年人不做选择
 ```
 
-或者明确选择组件：
+也可以自己点菜：
 
 ```sh
 npx dsh-devkit install --modules core,github,browser --profile web
 ```
 
-常用选项：
+常用选项：`--dry-run`（只看命令不执行）、`--no-verify`（装完跳过配置检查）、`--profile <name>`（装到指定 profile）。全局装过的话，直接用 `dsh-devkit ...` 代替 `npx dsh-devkit ...`。
 
-- `--dry-run`：只显示将执行的命令。
-- `--no-verify`：安装后不运行 Harness 配置检查。
-- `--profile <name>`：安装到指定 Harness profile。
-
-如果已经把 `dsh-devkit` 安装到 `PATH`，可直接使用 `dsh-devkit ...` 代替 `npx dsh-devkit ...`。
-
-## 可选组件
+## 📦 组件全家桶
 
 | 组件 | 用途 |
 | --- | --- |
-| `core` | 风险操作提醒、凭据保护和开发 Skills。建议安装。 |
+| `core` | 风险操作提醒、凭据保护和开发 Skills。建议装。 |
 | `github` | GitHub Issue、PR、仓库和 Actions 工作流。 |
 | `browser` | 基于 Playwright 的页面检查与浏览器调试。 |
 | `runtime` | Harness 临时 Cordis 扩展工具，仅用于受信任代码。 |
+| `token-watch` | 消耗超限/长时间工作时后台并行审查，异常时暂停并请用户裁决。 |
 
-## GitHub 凭据
+## 🔐 GitHub 凭据
 
-使用 GitHub 组件前，在启动 Harness 的环境中提供 fine-grained PAT：
+用 GitHub 组件前，在启动 Harness 的环境里提供 fine-grained PAT：
 
 ```powershell
 $env:GITHUB_PERSONAL_ACCESS_TOKEN = '<fine-grained PAT>'
@@ -85,42 +68,55 @@ $env:GITHUB_PERSONAL_ACCESS_TOKEN = '<fine-grained PAT>'
 export GITHUB_PERSONAL_ACCESS_TOKEN='<fine-grained PAT>'
 ```
 
-只授予目标仓库和当前任务需要的权限。不要把真实 token 写进仓库、配置、聊天或命令历史；优先使用系统的凭据管理方式注入环境变量。
+只授目标仓库和当前任务需要的权限，别把真实 token 写进仓库、配置、聊天或命令历史——让系统的凭据管理来注入，它比你的剪贴板安全。
 
-## 开始使用
+## 🧭 开始使用
 
-安装完成后启动 Harness。已有全局 `dsh` 时运行：
+装完启动 Harness：
 
 ```sh
 dsh --profile web
 ```
 
-没有全局 `dsh` 时运行：
+没有全局 `dsh` 时：
 
 ```sh
 npx --yes @deepseek-ai/dsh --profile web
 ```
 
-- GitHub 能力默认按任务启用；需要时让 agent 加载 `setup-github` Skill。
-- 浏览器能力需要时加载 `setup-browser` Skill；仅在 Playwright 明确提示时安装浏览器文件。
-- 排查安装或 profile 问题时加载 `troubleshoot-devkit` Skill，或运行 `npx dsh-devkit doctor`。
-- Runtime 组件只应运行你信任的扩展代码。
+- GitHub 能力默认按任务启用，让 agent 加载 `setup-github` Skill 即可。
+- 浏览器能力需要时加载 `setup-browser` Skill；只有 Playwright 明确提示时才装浏览器文件。
+- 出问题别慌：加载 `troubleshoot-devkit` Skill，或 `npx dsh-devkit doctor`。
+- Runtime 组件只运行你信任的扩展代码——你懂的。
 
-## 卸载
+## 🎯 Token Watch：你的 token 账房先生
+
+长任务跑着跑着，模型钻进死胡同狂烧 token——这种事我们见多了。`token-watch` 就是为此生的：
+
+- **消耗审查**：10 分钟窗口烧掉 30 万 token？后台立刻开个子代理审查这段活动，**主任务照跑，不打断**。只有两种时候它会叫停：审查期间窗口继续飙到硬停线（默认 60 万），或审查判定异常。
+- **进度体检**：连续干满 30 分钟？自动检查一下模型是不是在钻牛角尖——反复试同一个失败方案、重复读同一份文件、空转没进展，一眼看穿。
+- **请用户拍板**：判定异常才弹窗：继续 / 停止 / 关闭功能。审查子代理保留工具权限、能自己读文件核实，但最终必须给结构化结论。
+- **随时关掉**：一句 `token_watch` 工具调用，或弹窗里一键关闭。审查失败一律放行，绝不卡住你的会话。
 
 ```sh
-npx dsh-devkit uninstall --modules core,github,browser,runtime --profile web
+npx dsh-devkit install --modules core,token-watch --profile web
 ```
 
-## 安全说明
+## 🧹 卸载
 
-DevKit 会减少不必要的工具暴露，并为多类高风险操作增加审批或拒绝，但它不是安全沙箱。Harness 的 sandbox、subprocess/approval policy、操作系统权限和远程服务权限仍是真正的安全边界。
+```sh
+npx dsh-devkit uninstall --modules core,github,browser,runtime,token-watch --profile web
+```
 
-架构、安全模型与限制见 [DECISIONS.md](DECISIONS.md)，后续计划见 [TODO.md](TODO.md)。
+装了啥就卸啥，干净利落。
 
-## 从源码运行
+## ⚠️ 安全边界（说人话版）
 
-正式用户优先使用 `npx dsh-devkit ...`。开发此项目时可从源码 checkout 运行：
+DevKit 会减少不必要的工具暴露，并为多类高风险操作增加审批或拒绝，但**它不是安全沙箱**。真正的安全边界依然是：Harness 的 sandbox、subprocess/approval policy、操作系统权限和远程服务权限。我们负责把风险摊到你面前，你负责拍板——架构与限制详见 [DECISIONS.md](DECISIONS.md)，路线图见 [TODO.md](TODO.md)。
+
+## 🛠️ 从源码运行
+
+正式用户优先 `npx dsh-devkit ...`。想给本项目贡献代码？
 
 ```sh
 git clone https://github.com/ophielel/dsh-devkit.git

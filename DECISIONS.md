@@ -103,3 +103,33 @@ This policy is deliberately layered rather than presented as containment. `tools
 ### DeepSeek model implications
 
 Current official DeepSeek V4 API models support thinking-mode tool calls, a 1M context window, and large outputs. Tool-calling conversations must preserve `reasoning_content` across subsequent tool requests. DevKit therefore leaves model message handling to Harness, keeps tool schemas scoped by installed Bundle, prefers short structured tool output, and encodes long workflows as lazily loaded Skills rather than permanent system-prompt text.
+
+## 2026-08-15 — Token Watch: windowed usage guard
+
+### Context
+
+Long autonomous runs can burn tokens silently in loops, repeated reads, or runaway output. Approval only intercepts risky tool calls; it says nothing about volume. The guard needs its own observation seam and a human verdict path, without inventing new authority.
+
+### Decision (revised: parallel review, periodic progress checks, flexible reviewer)
+
+Add an independent `token-watch` Bundle (`dsh-devkit-token-watch`) that observes root agent sessions only through `session/event`:
+
+- **Usage trigger** — a sliding window (default 10 min / 300k tokens, count = `inputTokens + cacheWriteTokens + outputTokens`, cache reads excluded as cheap repetition). Crossing starts a review **in the background without halting the turn**; the agent keeps working while the reviewer reads the window.
+- **Hard-stop escalation** — the only immediate halt is reserved for runaway burn: if the window reaches `hardStopTokens` (default 600k) while a review is in flight — or the first crossing is already at/above it — the turn is cancelled immediately and the pending verdict decides the aftermath (normal → auto-resume with notice; abnormal → ask).
+- **Periodic progress checks** — for long continuous sessions, every `checkIntervalMs` (default 30 min) of activity a progress review checks for rabbit-holing (repeating the same failed approach, re-reading the same content, spinning without progress). Anchored to `session.header.createdAt` so an already-long session gets its first check immediately. Normal verdicts stay silent; abnormal ones halt and ask.
+- **Flexible reviewer** — the one-shot child receives the session's original task instruction plus a generous transcript summary, and keeps its composed tool access instead of a deny-all filter, so it can verify facts itself (delegation already pins child approval to `never`, and the run is bounded by timeout, output cap, and `maxDepth: 1`). It must still end with the structured `{ verdict, reason, evidence }` output; missing/aborted/oversized reviews fall back to asking the user with raw stats (usage mode) or stay silent (progress mode).
+- **Human verdict** — abnormal results route through `ctx.userQuestions` (agent-attached, since the web provider requires an agent-owned session) with continue / stop / disable options. "Stop" and the no-UI fallback deliver the notice through `agent.inject` (queued context, **no wake**), so stopping never re-drives the model; only continue / disable / fail-open recovery use `followup`. Every failure path is fail-open: a broken review or ask never strands a session.
+- **Toggle** — the model-facing `token_watch` tool adjusts enabled/window/threshold/hard-stop/cooldown/interval at runtime; the dialog offers one-click disable. `hardStopTokens` is clamped to be at least `thresholdTokens`, since a lower value would degenerate the first crossing into an immediate halt.
+
+### Alternatives rejected
+
+- **Halt first, review after:** the user experienced this as a jarring mid-task interruption, and it stalls legitimate heavy work on every crossing. Parallel review costs the reviewer's window in the worst case, which the hard-stop line bounds.
+- **Structured review with deny-all tools:** the reviewer cannot ground its judgment beyond the summary; tool access with bounded runtime is more accurate and the delegation policy already constrains side effects.
+- **Count every billed token including cache reads:** cache hits scale with legitimate session length and would trigger constantly on large contexts; the marginal-burn metric matches the anomaly shape.
+
+### Consequences and limits
+
+- The guard is advisory, not a quota: it pauses and asks, it does not cap spend. The reviewer is a model judgment, so verdicts can be wrong; the user always holds the final decision and can disable the feature.
+- Parallel reviews mean the window can grow past the threshold while judging; the hard-stop line caps the worst case. Cooldown and per-session in-flight guards prevent review storms.
+- The window runs from in-process observation; a restart resets it. On plugin load, historical events are replayed as `seeded`: an already-crossed window still triggers one review, but replay never hard-stops the turn — a freshly loaded plugin must not cancel an in-flight turn before any verdict exists.
+- Structured review output is best-effort: `max-tokens`, aborted, or non-completed review runs fall back to asking the user with raw stats.

@@ -8,7 +8,6 @@ export function parseArgs(argv) {
     profile: 'web',
     harness: undefined,
     dryRun: false,
-    yes: false,
     noVerify: false,
   }
   let index = 0
@@ -29,7 +28,6 @@ export function parseArgs(argv) {
       continue
     }
     if (flag === '--dry-run') options.dryRun = true
-    else if (flag === '--yes') options.yes = true
     else if (flag === '--no-verify') options.noVerify = true
     else if (flag === '--help' || flag === '-h') options.command = 'help'
     else throw new Error(`未知参数：${flag}`)

@@ -16,7 +16,6 @@ test('argument parser accepts a non-interactive install preset and Harness sourc
       profile: 'dev',
       harness: './harness',
       dryRun: true,
-      yes: false,
       noVerify: false,
     },
   )

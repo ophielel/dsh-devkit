@@ -17,3 +17,5 @@ importers:
   packages/installer: {}
 
   packages/runtime: {}
+
+  packages/token-watch: {}

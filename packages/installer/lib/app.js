@@ -48,6 +48,7 @@ export async function runApp(options, io = {}) {
 
   const localRoot = findLocalWorkspaceRoot()
   const byId = new Map(MODULES.map(module => [module.id, module]))
+  const done = []
   for (const moduleId of selected) {
     const module = byId.get(moduleId)
     const spec = options.command === 'install'
@@ -58,7 +59,11 @@ export async function runApp(options, io = {}) {
       createPluginArgs(options.command, options.profile, spec),
       { dryRun: options.dryRun, stdout, stderr },
     )
-    if (result.status !== 0) return result.status
+    if (result.status !== 0) {
+      stderr.write(`${options.command === 'install' ? '安装' : '卸载'}失败于 ${moduleId}（exit ${result.status}）；此前已完成：${done.join(', ') || '无'}。\n`)
+      return result.status
+    }
+    done.push(moduleId)
   }
 
   if (options.command === 'install' && !options.noVerify) {
@@ -83,7 +88,13 @@ function runDoctor(options, { stdout, commandExists: hasCommand }) {
     rows.push({ ok: hasCommand('pnpm'), label: 'pnpm', detail: 'Harness source checkout launcher' })
     const manifestPath = resolve(options.harness, 'apps', 'cli', 'package.json')
     let version = 'missing'
-    if (existsSync(manifestPath)) version = JSON.parse(readFileSync(manifestPath, 'utf8')).version
+    if (existsSync(manifestPath)) {
+      try {
+        version = JSON.parse(readFileSync(manifestPath, 'utf8')).version
+      } catch {
+        version = 'unreadable'
+      }
+    }
     rows.push({ ok: version === HARNESS_VERSION, label: 'DeepSeek Harness source', detail: version })
   } else if (hasCommand('dsh')) {
     rows.push({ ok: true, label: 'DeepSeek Harness', detail: 'dsh on PATH' })
@@ -106,5 +117,5 @@ function findLocalWorkspaceRoot() {
 }
 
 function helpText() {
-  return `dsh-devkit ${VERSION}\n\nUsage:\n  dsh-devkit install [--profile web] [--preset frontend|backend|full]\n  dsh-devkit install --modules core,github,browser,runtime\n  dsh-devkit uninstall --modules core,github\n  dsh-devkit doctor [--harness <source-checkout>]\n\nOptions:\n  --harness <path>  Use a DeepSeek Harness source checkout through pnpm dsh\n  --dry-run         Print official dsh plugin commands without executing them\n  --no-verify       Skip dsh --dump-config after installation\n`
+  return `dsh-devkit ${VERSION}\n\nUsage:\n  dsh-devkit install [--profile web] [--preset frontend|backend|full]\n  dsh-devkit install --modules core,github,browser,runtime,token-watch\n  dsh-devkit uninstall --modules core,github\n  dsh-devkit doctor [--harness <source-checkout>]\n\nOptions:\n  --harness <path>  Use a DeepSeek Harness source checkout through pnpm dsh\n  --dry-run         Print official dsh plugin commands without executing them\n  --no-verify       Skip dsh --dump-config after installation\n`
 }

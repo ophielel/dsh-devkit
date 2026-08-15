@@ -27,6 +27,13 @@ export const MODULES = Object.freeze([
     title: 'Runtime extensions',
     description: '检查并临时加载、停止或卸载 Cordis 能力',
   }),
+  Object.freeze({
+    id: 'token-watch',
+    packageName: 'dsh-devkit-token-watch',
+    version: '0.1.0',
+    title: 'Token Watch',
+    description: '消耗超限/长时间工作时后台并行审查，异常时暂停并请用户裁决',
+  }),
 ])
 
 const PRESETS = Object.freeze({

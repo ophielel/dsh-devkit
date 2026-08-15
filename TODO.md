@@ -16,6 +16,7 @@
 - [x] Local tarball pack, clean install, and installed CLI smoke test
 - [x] Task-scoped GitHub, Browser, and Runtime tool visibility
 - [x] Layered approval plus monotonic credential-value denial
+- [x] Token Watch: windowed usage guard with subagent review and user verdict
 
 ## After MVP
 

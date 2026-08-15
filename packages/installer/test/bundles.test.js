@@ -14,7 +14,7 @@ function readBundle(name) {
 }
 
 test('every selectable component is an official Harness Bundle package', () => {
-  for (const name of ['core', 'github', 'browser', 'runtime']) {
+  for (const name of ['core', 'github', 'browser', 'runtime', 'token-watch']) {
     const { manifest } = readBundle(name)
     assert.equal(manifest.dsh.bundle.patch, './cordis.patch.yml')
     assert.equal(manifest.version, '0.1.0')
@@ -47,4 +47,9 @@ test('Runtime Bundle exposes Harness-owned lifecycle tools without implementing 
   const { patch } = readBundle('runtime')
   assert.match(patch, /@deepseek-ai\/dsh-tool-cordis/)
   assert.doesNotMatch(patch, /mcp-client/)
+})
+
+test('Token Watch Bundle installs the windowed usage guard plugin', () => {
+  const { patch } = readBundle('token-watch')
+  assert.match(patch, /dsh-devkit-token-watch/)
 })

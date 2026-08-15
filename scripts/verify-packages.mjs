@@ -5,7 +5,7 @@ import { basename, join, resolve } from 'node:path'
 import { scanDirectory } from './check-portability.mjs'
 
 const root = resolve(import.meta.dirname, '..')
-const packageDirectories = ['installer', 'core', 'github', 'browser', 'runtime']
+const packageDirectories = ['installer', 'core', 'github', 'browser', 'runtime', 'token-watch']
 const temporaryRoot = mkdtempSync(join(tmpdir(), 'dsh-devkit-pack-'))
 const packDirectory = join(temporaryRoot, 'packs')
 const consumerDirectory = join(temporaryRoot, 'consumer')
@@ -48,6 +48,9 @@ function verifyInstalledPackage(directory) {
     for (const required of ['index.js', 'capabilities.js', 'safety.js', join('skills', 'setup-github', 'SKILL.md')]) {
       if (!existsSync(join(installedRoot, required))) throw new Error(`packed core is missing ${required}`)
     }
+  }
+  if (directory === 'token-watch' && !existsSync(join(installedRoot, 'index.js'))) {
+    throw new Error('packed token-watch is missing index.js')
   }
   if (!['installer', 'core'].includes(directory) && !existsSync(join(installedRoot, 'cordis.patch.yml'))) {
     throw new Error(`packed ${sourceManifest.name} is missing cordis.patch.yml`)
