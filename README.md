@@ -1,10 +1,12 @@
-# ⚡ dsh-devkit
+# ⚡ deepseek-forge
 
-> 你的 DeepSeek Harness 开发增强套件——装上就能干活，不必 fork，不必魔改，不必重新发明轮子。
+> 你的 DeepSeek Harness 开发锻造工坊——装上就能干活，不必 fork，不必魔改，不必重新发明轮子。
 
-[![CI](https://github.com/ophielel/dsh-devkit/actions/workflows/ci.yml/badge.svg)](https://github.com/ophielel/dsh-devkit/actions/workflows/ci.yml)
+[![CI](https://github.com/ophielel/deepseek-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/ophielel/deepseek-forge/actions/workflows/ci.yml)
 
-别的工具让你配半天环境才能开始写代码，我们让你**今天就能开始**。dsh-devkit 是一套按需安装的开发能力包：GitHub、浏览器验证、九种开发工作流、一个会帮你盯着 token 消耗的监督员——全都长在 Harness 原生机制上，卸载即净，不留后遗症。
+别的工具让你配半天环境才能开始写代码，我们让你**今天就能开始**。deepseek-forge 是一套按需安装的开发能力包：GitHub、浏览器验证、九种开发工作流、一个会帮你盯着 token 消耗的监督员——全都长在 Harness 原生机制上，卸载即净，不留后遗症。
+
+> 兼容说明：安装命令与各组件包继续沿用 `dsh-devkit` 命名（CLI 为 `npx dsh-devkit`），既有 profile 不受影响。
 
 ## ✨ 它能为你做什么
 
@@ -119,8 +121,8 @@ DevKit 会减少不必要的工具暴露，并为多类高风险操作增加审�
 正式用户优先 `npx dsh-devkit ...`。想给本项目贡献代码？
 
 ```sh
-git clone https://github.com/ophielel/dsh-devkit.git
-cd dsh-devkit
+git clone https://github.com/ophielel/deepseek-forge.git
+cd deepseek-forge
 pnpm install --frozen-lockfile
 node ./packages/installer/lib/cli.js doctor
 node ./packages/installer/lib/cli.js install --profile web --harness <path-to-deepseek-harness>
